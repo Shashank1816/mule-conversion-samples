@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	<http:listener-config name="mobile-eapi-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="${https.port}" protocol="HTTPS">
+			<tls:context >
+				<tls:trust-store insecure="true" />
+				<tls:key-store type="jks" path="${keystore.path}" alias="${keystore.alias}" keyPassword="${keystore.keypassword}" password="${keystore.password}" />
+			</tls:context>
+		</http:listener-connection>
+    </http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="421410d2-e06f-4984-bc99-9741045ec810" file="properties/${mule.env}-prop.yaml" />
+	<global-property doc:name="Global Property" doc:id="8e2ca4fb-fdf5-4d1c-8ffb-242ce195ff8e" name="mule.env" value="dev" />
+	<http:request-config name="HTTP_Request_configuration_sfdc_sAPI" doc:name="HTTP Request configuration" doc:id="7c3eaa8a-5153-4176-b61e-7c280f7cf56f" >
+		<http:request-connection host="${sfdcsapi.host}" port="${sfdcsapi.port}" protocol="HTTPS">
+			<tls:context >
+				<tls:trust-store insecure="true" />
+				<tls:key-store type="jks" path="${keystore.path}" alias="${keystore.alias}" keyPassword="${keystore.keypassword}" password="${keystore.password}" />
+			</tls:context>
+		</http:request-connection>
+	</http:request-config>
+	<http:request-config name="HTTP_Request_configuration_accounts_pAPI" doc:name="HTTP Request configuration" doc:id="8ca3b835-ede9-4b2a-8d3e-7baade85e17d" >
+		<http:request-connection host="${accountspapi.host}" port="${accountspapi.port}" protocol="HTTPS">
+			<tls:context >
+				<tls:trust-store insecure="true" />
+				<tls:key-store type="jks" path="${keystore.path}" alias="${keystore.alias}" keyPassword="${keystore.keypassword}" password="${keystore.password}" />
+			</tls:context>
+		</http:request-connection>
+	</http:request-config>
+	<json-logger:config name="JSON_Logger_Config" doc:name="JSON Logger Config" doc:id="b1cecc84-602f-4c00-9f96-24290c14486d" applicationName="${app.name}" applicationVersion="${app.version}" environment="${mule.env}" />
+	<configuration doc:name="Configuration" doc:id="e128a4b1-5ba3-4fa0-b2bb-16fe8e8d234c" defaultErrorHandler-ref="apikit-errors" />
+	<configuration-properties doc:name="Configuration properties" doc:id="8f0d73db-d077-44a2-adae-88ea60b89cf1" file="common-prop.yaml" />
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="a5aabe2e-0178-4ae9-a853-9931c5b80627" maxEntries="30" entryTtl="10" expirationInterval="5"/>
+	<ee:object-store-caching-strategy name="Caching_Strategy" doc:name="Caching Strategy" doc:id="b348854e-31b0-4da8-af11-f6d61773d9c6" objectStore="Object_store" />
+	<api-gateway:autodiscovery apiId="${apiKey}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="35e6208c-bbdd-46bb-a6f8-d0bea2f946f3" flowRef="mobile-accounts-eapi-main" />
+</mule>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<flow name="get-accounts-logicFlow" doc:id="927374fc-30a2-450b-8253-5b11316005e0" >
+		<set-variable value="#[correlationId]" doc:name="correlationId" doc:id="a322930c-48a9-406f-bc30-13b036b650eb" variableName="correlationId"/>
+		<json-logger:logger doc:name="Flow start log" doc:id="3f4299d6-e4c7-4d05-9c6d-819485296c96" message="get-accounts-logicFlow start" config-ref="JSON_Logger_Config"/>
+		<ee:cache doc:name="Cache" doc:id="ac4d4cb5-b1a9-4c11-a4b5-0c714d47454c" cachingStrategy-ref="Caching_Strategy">
+			<http:request method="GET" doc:name="Request to get accounts by id" doc:id="9311aee3-0c81-4f18-95ff-f71a57060d9f" config-ref="HTTP_Request_configuration_sfdc_sAPI" path="/api/v1/accounts/{accountId}">
+			<http:headers><![CDATA[#[{
+	client_id: '${sfdcsapi.client_id}',
+	client_secret: '${sfdcsapi.client_secret}',
+	channel: attributes.headers.channel,
+	correlationId: vars.correlationId
+}]]]></http:headers>
+			<http:uri-params><![CDATA[#[{
+	accountId: attributes.uriParams.accountId
+}]]]></http:uri-params>
+		</http:request>
+		</ee:cache>
+		<ee:transform doc:name="Get accounts response" doc:id="2a9a74fb-7104-4eed-a7ef-72e025e972af" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Flow end log" doc:id="0e21689b-e601-46d0-beeb-ea172a3cebd3" message="get-accounts-logicFlow end #[vars.correlationId]" />
+		<json-logger:logger doc:name="Flow end log" doc:id="6bf3e87e-c9ca-4024-844b-b881a6d1e0d2" config-ref="JSON_Logger_Config" message="get-accounts-logicFlow end" tracePoint="END"/>
+	</flow>
+</mule>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<flow name="create-accounts-logicFlow" doc:id="d04385b7-e0ba-407c-81be-69945c1245bf" >
+		<set-variable value="#[correlationId]" doc:name="correlationId" doc:id="d1bc56c0-e68a-4f1d-94be-57baa7c51603" variableName="correlationId" />
+		<json-logger:logger doc:name="Flow start log" doc:id="0f01d056-91c8-4de7-93e9-ecf0a98b5f99" config-ref="JSON_Logger_Config" message="create-accounts-logicFlow start"/>
+		<http:request method="POST" doc:name="Request to create account" doc:id="ac0d6536-1ba5-4a46-a082-913da00cd7d3" config-ref="HTTP_Request_configuration_accounts_pAPI" path="/api/v1/accounts">
+			<http:headers ><![CDATA[#[{
+	client_id: '${accountspapi.client_id}',
+	client_secret: '${accountspapi.client_secret}',
+	channel: attributes.headers.channel,
+	correlationId: vars.correlationId
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Create account response" doc:id="5ffb92b5-961b-4be1-8235-3f339a657269" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Flow end log" doc:id="bd648c06-6f05-4c8f-9137-b943374b311f" message="create-accounts-logicFlow end #[vars.correlationId]"/>
+		<json-logger:logger doc:name="Flow end log" doc:id="2a911b2a-f44a-4237-b3ad-fac93224c506" config-ref="JSON_Logger_Config" message="create-accounts-logicFlow end" tracePoint="END"/>
+	</flow>
+</mule>
